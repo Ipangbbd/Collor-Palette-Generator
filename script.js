@@ -1,215 +1,306 @@
-// Main app functionality
-document.addEventListener('DOMContentLoaded', function () {
-    const paletteContainer = document.getElementById('palette-container');
-    const generateBtn = document.getElementById('generate-btn');
-    const savePaletteBtn = document.getElementById('save-palette');
-    const savedPalettesContainer = document.getElementById('saved-palettes-container');
+// Wait for page to load
+window.onload = function () {
+    // Global variables
+    var paletteContainer = document.getElementById('palette-container');
+    var generateBtn = document.getElementById('generate-btn');
+    var savePaletteBtn = document.getElementById('save-palette');
+    var savedPalettesContainer = document.getElementById('saved-palettes-container');
 
     // Number of colors to generate
-    const colorCount = 5;
+    var colorCount = 5;
 
     // Current palette colors
-    let currentPalette = [];
+    var currentPalette = [];
 
     // Load saved palettes from localStorage
-    let savedPalettes = JSON.parse(localStorage.getItem('savedPalettes')) || [];
+    var savedPalettes = JSON.parse(localStorage.getItem('savedPalettes')) || [];
 
-    // Initial palette generation
-    generateRandomPalette();
-    renderSavedPalettes();
+    // Generate initial palette
+    makeRandomPalette();
+    showSavedPalettes();
 
-    // Event listeners
-    generateBtn.addEventListener('click', generatePalette);
-    savePaletteBtn.addEventListener('click', savePalette);
+    // Add event listeners to buttons
+    generateBtn.onclick = function () {
+        // Get which radio button is checked
+        var schemeType = document.querySelector('input[name="scheme"]:checked').value;
 
-    // Generate new palette based on selected scheme
-    function generatePalette() {
-        const selectedScheme = document.querySelector('input[name="scheme"]:checked').value;
-
-        switch (selectedScheme) {
-            case 'monochromatic':
-                generateMonochromaticPalette();
-                break;
-            case 'analogous':
-                generateAnalogousPalette();
-                break;
-            default:
-                generateRandomPalette();
+        if (schemeType === "random") {
+            makeRandomPalette();
+        } else if (schemeType === "monochrome") {
+            makeMonochromePalette();
+        } else if (schemeType === "analogous") {
+            makeAnalogusPalette();
         }
-    }
+    };
+
+    savePaletteBtn.onclick = function () {
+        if (currentPalette.length === 0) return;
+
+        // Add to saved palettes
+        savedPalettes.push(currentPalette.slice());  // Make a copy
+
+        // Save to local storage
+        localStorage.setItem('savedPalettes', JSON.stringify(savedPalettes));
+
+        // Update display
+        showSavedPalettes();
+    };
 
     // Generate random palette
-    function generateRandomPalette() {
+    function makeRandomPalette() {
+        // Clear old palette
         currentPalette = [];
         paletteContainer.innerHTML = '';
 
-        for (let i = 0; i < colorCount; i++) {
-            const color = getRandomColor();
+        // Create new colors
+        for (var i = 0; i < colorCount; i++) {
+            var color = getRandomHexColor();
             currentPalette.push(color);
-            createColorBox(color);
+            addColorBox(color);
         }
     }
 
-    // Generate monochromatic palette
-    function generateMonochromaticPalette() {
+    // Generate monochrome palette
+    function makeMonochromePalette() {
+        // Clear old palette
         currentPalette = [];
         paletteContainer.innerHTML = '';
 
-        // Generate base color in HSL
-        const hue = Math.floor(Math.random() * 360);
-        const saturation = 70 + Math.floor(Math.random() * 30);
+        // Get random base color
+        var hue = Math.floor(Math.random() * 360);
+        var saturation = 65 + Math.floor(Math.random() * 35);
 
-        for (let i = 0; i < colorCount; i++) {
-            // Vary lightness from 20% to 80%
-            const lightness = 20 + (i * 15);
-            const color = hslToHex(hue, saturation, lightness);
+        // Create variations
+        for (var i = 0; i < colorCount; i++) {
+            var lightness = 25 + (i * 12);  // From dark to light
+            if (lightness > 85) lightness = 85;  // Cap lightness
+
+            var color = hslToHex(hue, saturation, lightness);
             currentPalette.push(color);
-            createColorBox(color);
+            addColorBox(color);
         }
     }
 
-    // Generate analogous palette (colors next to each other on color wheel)
-    function generateAnalogousPalette() {
+    // Generate analogous palette
+    function makeAnalogusPalette() {
+        // Clear old palette
         currentPalette = [];
         paletteContainer.innerHTML = '';
 
-        // Generate base hue
-        const baseHue = Math.floor(Math.random() * 360);
-        const saturation = 70 + Math.floor(Math.random() * 30);
-        const lightness = 50 + Math.floor(Math.random() * 20);
+        // Get random base hue
+        var baseHue = Math.floor(Math.random() * 360);
+        var saturation = 75;
+        var lightness = 60;
 
-        for (let i = 0; i < colorCount; i++) {
-            // Shift hue by -40 to +40 degrees
-            const hue = (baseHue + (i - 2) * 20 + 360) % 360;
-            const color = hslToHex(hue, saturation, lightness);
+        // Create color variations
+        for (var i = 0; i < colorCount; i++) {
+            // Shift hue around the base hue (-40 to +40)
+            var hueShift = (i - Math.floor(colorCount / 2)) * 15;
+            var hue = (baseHue + hueShift + 360) % 360;  // Ensure it wraps around 0-360
+
+            var color = hslToHex(hue, saturation, lightness);
             currentPalette.push(color);
-            createColorBox(color);
+            addColorBox(color);
         }
     }
 
-    // Create a color box in the palette
-    function createColorBox(hexColor) {
-        const colorBox = document.createElement('div');
-        colorBox.className = 'color-box';
-        colorBox.style.backgroundColor = hexColor;
+    // Add a new color box to the palette
+    function addColorBox(hexColor) {
+        var box = document.createElement('div');
+        box.className = 'color-box';
+        box.style.backgroundColor = hexColor;
 
-        const colorInfo = document.createElement('div');
-        colorInfo.className = 'color-info';
+        var info = document.createElement('div');
+        info.className = 'color-info';
 
-        const colorCode = document.createElement('div');
+        var colorCode = document.createElement('div');
         colorCode.className = 'color-code';
         colorCode.textContent = hexColor;
 
-        const copyMsg = document.createElement('div');
+        var copyMsg = document.createElement('div');
         copyMsg.className = 'copy-msg';
         copyMsg.textContent = 'Copied!';
 
-        colorInfo.appendChild(colorCode);
-        colorBox.appendChild(colorInfo);
-        colorBox.appendChild(copyMsg);
+        info.appendChild(colorCode);
+        box.appendChild(info);
+        box.appendChild(copyMsg);
 
-        // Copy functionality
-        colorBox.addEventListener('click', function () {
-            navigator.clipboard.writeText(hexColor).then(function () {
-                copyMsg.classList.add('show-msg');
-                setTimeout(function () {
-                    copyMsg.classList.remove('show-msg');
-                }, 1000);
-            });
+        // Copy color code when clicked
+        box.addEventListener('click', function () {
+            // Temp input element to copy text
+            var tempInput = document.createElement('input');
+            tempInput.value = hexColor;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            // Show copied message
+            copyMsg.style.display = 'block';
+            setTimeout(function () {
+                copyMsg.style.display = 'none';
+            }, 800);
         });
 
-        paletteContainer.appendChild(colorBox);
+        paletteContainer.appendChild(box);
     }
 
-    // Save current palette
-    function savePalette() {
-        if (currentPalette.length === 0) return;
-
-        savedPalettes.push([...currentPalette]);
-        localStorage.setItem('savedPalettes', JSON.stringify(savedPalettes));
-        renderSavedPalettes();
-    }
-
-    // Render saved palettes
-    function renderSavedPalettes() {
+    // Show saved palettes
+    function showSavedPalettes() {
         savedPalettesContainer.innerHTML = '';
 
         if (savedPalettes.length === 0) {
-            const emptyMessage = document.createElement('p');
-            emptyMessage.textContent = 'No saved palettes yet. Generate and save some!';
-            emptyMessage.style.textAlign = 'center';
-            savedPalettesContainer.appendChild(emptyMessage);
+            savedPalettesContainer.innerHTML = '<p>No saved palettes yet!</p>';
             return;
         }
 
-        savedPalettes.forEach((palette, index) => {
-            const paletteItem = document.createElement('div');
+        for (var i = 0; i < savedPalettes.length; i++) {
+            var palette = savedPalettes[i];
+
+            var paletteItem = document.createElement('div');
             paletteItem.className = 'saved-palette-item';
 
-            const miniPalette = document.createElement('div');
+            var miniPalette = document.createElement('div');
             miniPalette.className = 'mini-palette';
+            miniPalette.setAttribute('data-index', i);
 
-            // Create mini color swatches
-            palette.forEach(color => {
-                const miniColor = document.createElement('div');
+            // Create mini color blocks
+            for (var j = 0; j < palette.length; j++) {
+                var miniColor = document.createElement('div');
                 miniColor.className = 'mini-color';
-                miniColor.style.backgroundColor = color;
+                miniColor.style.backgroundColor = palette[j];
                 miniPalette.appendChild(miniColor);
-            });
+            }
 
-            // Delete button
-            const deleteBtn = document.createElement('button');
+            // Create delete button
+            var deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-palette';
             deleteBtn.textContent = 'Delete';
-            deleteBtn.dataset.index = index;
-            deleteBtn.addEventListener('click', function () {
-                savedPalettes.splice(index, 1);
-                localStorage.setItem('savedPalettes', JSON.stringify(savedPalettes));
-                renderSavedPalettes();
+            deleteBtn.setAttribute('data-index', i);
+
+            // Event listener for loading palette
+            miniPalette.addEventListener('click', function () {
+                var index = this.getAttribute('data-index');
+                loadSavedPalette(savedPalettes[index]);
             });
 
-            // Add click to load palette
-            miniPalette.addEventListener('click', function () {
-                loadPalette(palette);
+            // Event listener for delete button
+            deleteBtn.addEventListener('click', function (e) {
+                e.stopPropagation();  // Prevent triggering the parent's click
+                var index = this.getAttribute('data-index');
+                deleteSavedPalette(index);
             });
 
             paletteItem.appendChild(miniPalette);
             paletteItem.appendChild(deleteBtn);
             savedPalettesContainer.appendChild(paletteItem);
-        });
+        }
     }
 
     // Load a saved palette
-    function loadPalette(palette) {
-        currentPalette = [...palette];
+    function loadSavedPalette(palette) {
+        currentPalette = palette.slice(); // Copy the array
         paletteContainer.innerHTML = '';
 
-        palette.forEach(color => {
-            createColorBox(color);
-        });
-    }
-
-    // Helper Functions
-
-    // Generate random hex color
-    function getRandomColor() {
-        const letters = '0123456789ABCDEF';
-        let color = '#';
-        for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
+        for (var i = 0; i < palette.length; i++) {
+            addColorBox(palette[i]);
         }
-        return color;
     }
 
-    // Convert HSL to Hex
+    // Delete a saved palette
+    function deleteSavedPalette(index) {
+        savedPalettes.splice(index, 1);
+        localStorage.setItem('savedPalettes', JSON.stringify(savedPalettes));
+        showSavedPalettes();
+    }
+
+    // Helper function - generate random hex color
+    function getRandomHexColor() {
+        var hex = '#';
+        var chars = '0123456789ABCDEF';
+
+        for (var i = 0; i < 6; i++) {
+            hex += chars[Math.floor(Math.random() * 16)];
+        }
+
+        return hex;
+    }
+
+    // Helper function - convert HSL to Hex
     function hslToHex(h, s, l) {
+        // Convert HSL to RGB first
+        h /= 360;
+        s /= 100;
         l /= 100;
-        const a = s * Math.min(l, 1 - l) / 100;
-        const f = n => {
-            const k = (n + h / 30) % 12;
-            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-            return Math.round(255 * color).toString(16).padStart(2, '0');
-        };
-        return `#${f(0)}${f(8)}${f(4)}`;
+
+        var r, g, b;
+
+        if (s === 0) {
+            r = g = b = l;
+        } else {
+            function hue2rgb(p, q, t) {
+                if (t < 0) t += 1;
+                if (t > 1) t -= 1;
+                if (t < 1 / 6) return p + (q - p) * 6 * t;
+                if (t < 1 / 2) return q;
+                if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                return p;
+            }
+
+            var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            var p = 2 * l - q;
+
+            r = hue2rgb(p, q, h + 1 / 3);
+            g = hue2rgb(p, q, h);
+            b = hue2rgb(p, q, h - 1 / 3);
+        }
+
+        // Convert RGB to hex
+        // Convert RGB to hex
+        r = Math.round(r * 255).toString(16);
+        g = Math.round(g * 255).toString(16);
+        b = Math.round(b * 255).toString(16);
+
+        // Pad with zeros if needed
+        if (r.length == 1) r = '0' + r;
+        if (g.length == 1) g = '0' + g;
+        if (b.length == 1) b = '0' + b;
+
+        return '#' + r + g + b;
+    }
+};
+
+// Function to help with hex brightness
+function adjustBrightness(hex, amount) {
+    // Convert hex to RGB
+    var r = parseInt(hex.substring(1, 3), 16);
+    var g = parseInt(hex.substring(3, 5), 16);
+    var b = parseInt(hex.substring(5, 7), 16);
+
+    // Adjust brightness
+    r = Math.max(0, Math.min(255, r + amount));
+    g = Math.max(0, Math.min(255, g + amount));
+    b = Math.max(0, Math.min(255, b + amount));
+
+    // Convert back to hex
+    r = r.toString(16).padStart(2, '0');
+    g = g.toString(16).padStart(2, '0');
+    b = b.toString(16).padStart(2, '0');
+
+    return '#' + r + g + b;
+}
+
+// Some keyboard shortcuts
+document.addEventListener('keydown', function (e) {
+    // Space bar for new palette
+    if (e.code === 'Space') {
+        e.preventDefault();
+        generateBtn.click();
+    }
+
+    // 'S' key to save palette
+    if (e.code === 'KeyS') {
+        e.preventDefault();
+        savePaletteBtn.click();
     }
 });
