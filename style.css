@@ -1,0 +1,159 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #3a5a80;
+}
+
+.palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.color-box {
+    height: 180px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.color-box:hover {
+    transform: translateY(-5px);
+}
+
+.color-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 10px;
+    text-align: center;
+}
+
+.color-code {
+    font-family: monospace;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.copy-msg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.show-msg {
+    opacity: 1;
+}
+
+.color-schemes {
+    margin-bottom: 20px;
+}
+
+.color-schemes label {
+    margin-right: 10px;
+}
+
+.save-btn {
+    background-color: #6aaa64;
+}
+
+.save-btn:hover {
+    background-color: #588b52;
+}
+
+.saved-palettes {
+    margin-top: 40px;
+}
+
+.saved-palettes h2 {
+    margin-bottom: 15px;
+    text-align: center;
+    color: #333;
+}
+
+.saved-palette-item {
+    display: flex;
+    margin-bottom: 15px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.mini-palette {
+    display: flex;
+    flex-grow: 1;
+}
+
+.mini-color {
+    height: 50px;
+    flex-grow: 1;
+}
+
+.delete-palette {
+    background-color: #e74c3c;
+    height: 50px;
+    align-self: center;
+    margin-left: 15px;
+}
+
+.delete-palette:hover {
+    background-color: #c0392b;
+}
+
+@media (max-width: 600px) {
+    .palette {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
