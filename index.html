@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Palette Generator By Ali</title>
+    <title>Color Palette Generator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="container">
-        <h1>Color Palette Generator</h1>
+        <h1>Simple Color Palette Generator</h1>
 
         <div class="controls">
             <div class="color-schemes">
@@ -18,26 +18,24 @@
                     <input type="radio" name="scheme" value="random" checked> Random
                 </label>
                 <label>
-                    <input type="radio" name="scheme" value="monochromatic"> Monochromatic
+                    <input type="radio" name="scheme" value="monochrome"> Monochrome
                 </label>
                 <label>
                     <input type="radio" name="scheme" value="analogous"> Analogous
                 </label>
             </div>
 
-            <button id="generate-btn">Generate Palette</button>
-            <button id="save-palette" class="save-btn">Save Palette</button>
+            <div>
+                <button id="generate-btn">Generate New Colors</button>
+                <button id="save-palette" class="save-btn">Save Palette</button>
+            </div>
         </div>
 
-        <div class="palette" id="palette-container">
-            <!-- Color boxws will be dynamycally inserted here... -->
-        </div>
+        <div class="palette" id="palette-container"></div>
 
         <div class="saved-palettes">
             <h2>Saved Palettes</h2>
-            <div id="saved-palettes-container">
-                <!-- Saved pallettes will appear here -->
-            </div>
+            <div id="saved-palettes-container"></div>
         </div>
     </div>
 
